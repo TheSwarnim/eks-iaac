@@ -9,23 +9,23 @@ import (
 )
 
 type ClusterConfig struct {
-    Name              string
-    Region            string
-    Version           string
-    RoleArn           string
-    PublicAccessCidrs []string
-    SecurityGroupIds  []string
-    SubnetIds         []string
-    Tags              map[string]string
-    NodeGroups        []NodeGroup
+    Name              string `yaml:"name"`
+    Region            string `yaml:"region"`
+    Version           string `yaml:"version"`
+    RoleArn           string `yaml:"roleArn"`
+    PublicAccessCidrs []string `yaml:"publicAccessCidrs"`
+    SecurityGroupIds  []string `yaml:"securityGroupIds"`
+    SubnetIds         []string `yaml:"subnetIds"`
+    Tags              map[string]string `yaml:"tags"`
+    NodeGroups        []NodeGroup `yaml:"nodeGroups"`
 }
 
 type NodeGroup struct {
-	Name            string
-	InstanceType    string
-	DesiredCapacity int
-	MinSize         int
-	MaxSize         int
+	Name            string `yaml:"name"`
+	InstanceType    string `yaml:"instanceType"`
+	DesiredCapacity int `yaml:"desiredCapacity"`
+	MinSize         int `yaml:"minSize"`
+	MaxSize         int `yaml:"maxSize"`
 }
 
 func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {

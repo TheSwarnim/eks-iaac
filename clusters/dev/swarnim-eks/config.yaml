@@ -1,0 +1,20 @@
+name: swarnim-eks
+region: us-east-1
+version: "1.21"
+roleArn: arn:aws:iam::123456789012:role/eksClusterRole
+publicAccessCidrs:
+  - 0.0.0.0/0
+securityGroupIds:
+  - sg-0123456789abcdef1
+subnetIds:
+  - subnet-0123456789abcdef2
+  - subnet-0123456789abcdef3
+tags:
+  Environment: Development
+  Owner: Bob
+nodeGroups:
+  - name: nodegroup1
+    instanceType: t3.large
+    desiredCapacity: 3
+    minSize: 2
+    maxSize: 4
