@@ -1,0 +1,4 @@
+config:
+  cluster-config-path: ../clusters/dev
+  aws:region: ap-south-1
+  pulumi:backend: s3://my-dev-bucket

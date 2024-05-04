@@ -1,0 +1,8 @@
+name: eks-iaac
+runtime: go
+description: EKS IAAC config management project
+main: ../src/main.go
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-go
