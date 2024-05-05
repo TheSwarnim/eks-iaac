@@ -4,31 +4,30 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"github.com/go-playground/validator/v10"
+
 	"gopkg.in/yaml.v2"
 )
 
 type ClusterConfig struct {
     Name              string `yaml:"name" validate:"required"`
-    Region            string `yaml:"region" validate:"required"`
     Version           string `yaml:"version" validate:"required"`
-    RoleArn           string `yaml:"roleArn" validate:"required"`
-    PublicAccessCidrs []string `yaml:"publicAccessCidrs" validate:"required"`
-    SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required"`
-    SubnetIds         []string `yaml:"subnetIds" validate:"required"`
+    RoleArn           string `yaml:"roleArn" validate:"required,rolearn"`
+    PublicAccessCidrs []string `yaml:"publicAccessCidrs" validate:"required,dive,cidrv4"`
+    SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required,dive,securitygroupid"`
+    SubnetIds         []string `yaml:"subnetIds" validate:"required,dive,subnetid"`
     Tags              map[string]string `yaml:"tags" validate:"required"`
-    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"required"`
+    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"required,dive"`
 }
 
 type NodeGroup struct {
 	Name            string `yaml:"name" validate:"required"`
-    InstanceType    string `yaml:"instanceType" validate:"required"`
-    DesiredCapacity int    `yaml:"desiredCapacity" validate:"required"`
-    MinSize         int    `yaml:"minSize" validate:"required"`
-    MaxSize         int    `yaml:"maxSize" validate:"required"`
-	SubnetIds       []string `yaml:"subnetIds"`
-	RoleArn         string `yaml:"roleArn" validate:"required"`
-	Tags 		  map[string]string `yaml:"tags" validate:"required"`
+    InstanceType    string `yaml:"instanceType" validate:"required,instancetype"`
+    DesiredCapacity int    `yaml:"desiredCapacity" validate:"required,minfield=MinSize"`
+    MinSize         int    `yaml:"minSize" validate:"required,min=1"`
+	MaxSize         int    `yaml:"maxSize" validate:"required,minfield=MinSize"`
+	SubnetIds       []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
+	RoleArn         string `yaml:"roleArn" validate:"required,rolearn"`
+	Tags 		  	map[string]string `yaml:"tags" validate:"required"`
 }
 
 func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
@@ -60,8 +59,8 @@ func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
 			return err
 		}
 
-		validate := validator.New()
-		err = validate.Struct(clusterConfig)
+		// Validate the ClusterConfig
+		err = ValidateClusterConfig(&clusterConfig)
 		if err != nil {
 			return err
 		}

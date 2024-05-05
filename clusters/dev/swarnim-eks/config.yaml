@@ -1,20 +1,26 @@
-name: swarnim-eks
-region: us-east-1
+name: my-cluster
+region: us-west-2
 version: "1.21"
-roleArn: arn:aws:iam::123456789012:role/eksClusterRole
+roleArn: arn:aws:iam::123456789012:role/my-cluster-role
 publicAccessCidrs:
   - 0.0.0.0/0
 securityGroupIds:
-  - sg-0123456789abcdef1
+  - sg-0123456789abcdef0
 subnetIds:
-  - subnet-0123456789abcdef2
-  - subnet-0123456789abcdef3
+  - subnet-0123456789abcdef0
+  - subnet-0123456789abcdef1
 tags:
-  Environment: Development
-  Owner: Bob
+  Environment: Production
+  Owner: John Doe
 nodeGroups:
-  - name: nodegroup1
-    instanceType: t3.large
-    desiredCapacity: 3
-    minSize: 2
-    maxSize: 4
+  - name: my-node-group
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+    subnetIds:
+      - subnet-0123456789abcdef0
+    roleArn: arn:aws:iam::123456789012:role/my-node-group-role
+    tags:
+      Environment: Production
+      Owner: John Doe

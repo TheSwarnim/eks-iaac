@@ -31,6 +31,10 @@ func createOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfi
 	log.Printf("Successfully created EKS cluster: %s", clusterConfig.Name)
 
 	err = createOrUpdateNodeGroups(ctx, clusterConfig, cluster)
+	if err != nil {
+		log.Printf("Failed to create node groups for cluster: %s", clusterConfig.Name)
+		return err
+	}
 
 	return nil
 }
