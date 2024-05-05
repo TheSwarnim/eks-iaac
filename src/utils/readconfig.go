@@ -4,28 +4,31 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
+	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v2"
 )
 
 type ClusterConfig struct {
-    Name              string `yaml:"name"`
-    Region            string `yaml:"region"`
-    Version           string `yaml:"version"`
-    RoleArn           string `yaml:"roleArn"`
-    PublicAccessCidrs []string `yaml:"publicAccessCidrs"`
-    SecurityGroupIds  []string `yaml:"securityGroupIds"`
-    SubnetIds         []string `yaml:"subnetIds"`
-    Tags              map[string]string `yaml:"tags"`
-    NodeGroups        []NodeGroup `yaml:"nodeGroups"`
+    Name              string `yaml:"name" validate:"required"`
+    Region            string `yaml:"region" validate:"required"`
+    Version           string `yaml:"version" validate:"required"`
+    RoleArn           string `yaml:"roleArn" validate:"required"`
+    PublicAccessCidrs []string `yaml:"publicAccessCidrs" validate:"required"`
+    SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required"`
+    SubnetIds         []string `yaml:"subnetIds" validate:"required"`
+    Tags              map[string]string `yaml:"tags" validate:"required"`
+    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"required"`
 }
 
 type NodeGroup struct {
-	Name            string `yaml:"name"`
-	InstanceType    string `yaml:"instanceType"`
-	DesiredCapacity int `yaml:"desiredCapacity"`
-	MinSize         int `yaml:"minSize"`
-	MaxSize         int `yaml:"maxSize"`
+	Name            string `yaml:"name" validate:"required"`
+    InstanceType    string `yaml:"instanceType" validate:"required"`
+    DesiredCapacity int    `yaml:"desiredCapacity" validate:"required"`
+    MinSize         int    `yaml:"minSize" validate:"required"`
+    MaxSize         int    `yaml:"maxSize" validate:"required"`
+	SubnetIds       []string `yaml:"subnetIds"`
+	RoleArn         string `yaml:"roleArn" validate:"required"`
+	Tags 		  map[string]string `yaml:"tags" validate:"required"`
 }
 
 func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
@@ -53,6 +56,12 @@ func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
 		// Unmarshal the YAML data into a ClusterConfig struct
 		var clusterConfig ClusterConfig
 		err = yaml.Unmarshal(data, &clusterConfig)
+		if err != nil {
+			return err
+		}
+
+		validate := validator.New()
+		err = validate.Struct(clusterConfig)
 		if err != nil {
 			return err
 		}

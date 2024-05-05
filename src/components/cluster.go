@@ -8,10 +8,10 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func CreateOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfig) error {
+func createOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfig) error {
 	log.Printf("Creating EKS cluster: %s", clusterConfig.Name)
 
-	_, err := eks.NewCluster(ctx, clusterConfig.Name, &eks.ClusterArgs{
+ 	cluster, err := eks.NewCluster(ctx, clusterConfig.Name, &eks.ClusterArgs{
 		Name:    pulumi.String(clusterConfig.Name),
 		RoleArn: pulumi.String(clusterConfig.RoleArn),
 		VpcConfig: &eks.ClusterVpcConfigArgs{
@@ -20,13 +20,7 @@ func CreateOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfi
 			SubnetIds:         utils.ConvertToPulumiStringArray(clusterConfig.SubnetIds),
 		},
 		Version: pulumi.String(clusterConfig.Version),
-		Tags: func() pulumi.StringMap {
-			result := make(pulumi.StringMap)
-			for key, value := range clusterConfig.Tags {
-				result[key] = pulumi.String(value)
-			}
-			return result
-		}(),
+		Tags: utils.ConvertToPulumiStringMap(clusterConfig.Tags), // Convert map[string]string to pulumi.StringMap
 	})
 
 	if err != nil {
@@ -35,6 +29,25 @@ func CreateOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfi
 	}
 
 	log.Printf("Successfully created EKS cluster: %s", clusterConfig.Name)
+
+	err = createOrUpdateNodeGroups(ctx, clusterConfig, cluster)
+
+	return nil
+}
+
+func CreateOrUpdateClusters(ctx *pulumi.Context, clusterConfigs []utils.ClusterConfig) error {
+	// Iterate over the clusterConfigs and create each cluster
+	for _, clusterConfig := range clusterConfigs {
+		log.Printf("Creating cluster: %s", clusterConfig.Name)
+
+		// Use the CreateCluster function from src/components/cluster.go to create the cluster
+		err := createOrUpdateCluster(ctx, clusterConfig)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("Successfully created cluster: %s", clusterConfig.Name)
+	}
 
 	return nil
 }

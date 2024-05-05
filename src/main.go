@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/dreamplug-tech/eks-iaac-2.0/src/components"
 	"github.com/dreamplug-tech/eks-iaac-2.0/src/utils"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -20,20 +18,13 @@ func main() {
 		// Use the ReadClusterConfigs function from src/utils/readconfig.go to read the cluster configuration files
 		clusterConfigs, err := utils.ReadClusterConfigs(rootDir)
 		if err != nil {
-			log.Fatalf("Failed to read cluster configs: %v", err)
+			return err
 		}
 
-		// Iterate over the clusterConfigs and create each cluster
-		for _, clusterConfig := range clusterConfigs {
-			log.Printf("Creating cluster: %s", clusterConfig.Name)
-
-			// Use the CreateCluster function from src/components/iam.go to create the IAM resources
-			err := components.CreateOrUpdateCluster(ctx, clusterConfig)
-			if err != nil {
-				log.Fatalf("Failed to create cluster %s: %v", clusterConfig.Name, err)
-			}
-
-			log.Printf("Successfully created cluster: %s", clusterConfig.Name)
+		// Create the clusters
+		err = components.CreateOrUpdateClusters(ctx, clusterConfigs)
+		if err != nil {
+			return err
 		}
 
 		return nil
