@@ -11,12 +11,13 @@ import (
 type ClusterConfig struct {
     Name              string `yaml:"name" validate:"required"`
     Version           string `yaml:"version" validate:"required"`
-    RoleArn           string `yaml:"roleArn" validate:"required,rolearn"`
+    RoleArn           string `yaml:"roleArn" validate:"omitempty,rolearn"` 	// roleArn field is optional 
+	ServiceIpv4Cidr   string `yaml:"serviceIpv4Cidr" validate:"required,cidrv4"`
     PublicAccessCidrs []string `yaml:"publicAccessCidrs" validate:"required,dive,cidrv4"`
     SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required,dive,securitygroupid"`
     SubnetIds         []string `yaml:"subnetIds" validate:"required,dive,subnetid"`
     Tags              map[string]string `yaml:"tags" validate:"required"`
-    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"required,dive"`
+    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"omitempty,dive"`
 }
 
 type NodeGroup struct {
@@ -26,7 +27,7 @@ type NodeGroup struct {
     MinSize         int    `yaml:"minSize" validate:"required,min=1"`
 	MaxSize         int    `yaml:"maxSize" validate:"required,minfield=MinSize"`
 	SubnetIds       []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
-	RoleArn         string `yaml:"roleArn" validate:"required,rolearn"`
+	RoleArn         string `yaml:"roleArn" validate:"omitempty,rolearn"`
 	Tags 		  	map[string]string `yaml:"tags" validate:"required"`
 }
 

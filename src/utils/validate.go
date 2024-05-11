@@ -54,8 +54,8 @@ func validateMaxSize(fl validator.FieldLevel) bool {
 // custom validation functions for SubnetId field
 func validateSubnetID(fl validator.FieldLevel) bool {
     subnetID := fl.Field().String()
-    // AWS subnet IDs start with "subnet-" followed by a 8-character hexadecimal string
-    matched, _ := regexp.MatchString(`^subnet-[a-fA-F0-9]{8}$`, subnetID)
+    // AWS subnet IDs start with "subnet-" followed by a 17-character hexadecimal string
+    matched, _ := regexp.MatchString(`^subnet-[a-fA-F0-9]{17}$`, subnetID)
     return matched
 }
 
@@ -78,7 +78,7 @@ func validateRoleARN(fl validator.FieldLevel) bool {
 // custom validation functions for security group ID field
 func validateSecurityGroupID(fl validator.FieldLevel) bool {
 	securityGroupID := fl.Field().String()
-	// AWS security group IDs start with "sg-" followed by a 8-character hexadecimal string
-	matched, _ := regexp.MatchString(`^sg-[a-fA-F0-9]{8}$`, securityGroupID)
+	// AWS security group IDs start with "sg-" followed by a 17-character hexadecimal string
+	matched, _ := regexp.MatchString(`^sg-[a-fA-F0-9]{17}$`, securityGroupID)
 	return matched
 }

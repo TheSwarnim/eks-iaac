@@ -23,7 +23,7 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 		},
 		InstanceTypes: pulumi.StringArray{pulumi.String(nodeGroupConfig.InstanceType)},
 		Tags: 		utils.ConvertToPulumiStringMap(nodeGroupConfig.Tags),
-	})
+	}, pulumi.DependsOn([]pulumi.Resource{cluster}))
 
 	if err != nil {
 		log.Printf("Failed to create or update node group: %s", nodeGroupConfig.Name)
@@ -35,8 +35,8 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 	return nodeGroup, nil
 }
 
-func createOrUpdateNodeGroups(ctx *pulumi.Context, clusterConfig utils.ClusterConfig, cluster *eks.Cluster) error {
-	for _, nodeGroupConfig := range clusterConfig.NodeGroups {
+func createOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.NodeGroup, cluster *eks.Cluster) error {
+	for _, nodeGroupConfig := range nodeGroupConfigs {
 		_, err := createOrUpdateNodeGroup(ctx, nodeGroupConfig, cluster)
 		if err != nil {
 			return err

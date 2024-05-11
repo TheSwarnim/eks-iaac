@@ -14,7 +14,6 @@ func TestValidate(t *testing.T) {
         config := utils.ClusterConfig{
             // Don't set the Name field
             Version:           "1.18",
-            // Set other fields as needed...
         }
         err := utils.ValidateClusterConfig(config)
         require.Error(t, err)
@@ -26,7 +25,6 @@ func TestValidate(t *testing.T) {
         config := utils.ClusterConfig{
             Name:             "",
             Version:           "1.18",
-            // Set other fields as needed...
         }
         err := utils.ValidateClusterConfig(config)
         require.Error(t, err)
@@ -149,4 +147,67 @@ func TestValidate(t *testing.T) {
         require.Error(t, err)
         // require.Contains(t, err.Error(), "Tags cannot be empty")
     })
+
+    t.Run("TestValidSubnetID", func(t *testing.T) {
+        nodeGroup := utils.NodeGroup{
+            Name:            "my-node-group",
+            InstanceType:    "t3.medium",
+            DesiredCapacity: 2,
+            MinSize:         1,
+            MaxSize:         2,
+            SubnetIds:       []string{"subnet-12345678912345678"},
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            Tags:           map[string]string{"key": "value"},
+        }
+        err := utils.ValidateClusterConfig(nodeGroup)
+        require.NoError(t, err)
+        // require.Contains(t, err.Error(), "SubnetIds must be valid AWS subnet IDs")
+    })
+
+    t.Run("TestInvalidSubnetID", func(t *testing.T) {
+        nodeGroup := utils.NodeGroup{
+            Name:            "my-node-group",
+            InstanceType:    "t3.medium",
+            DesiredCapacity: 2,
+            MinSize:         1,
+            MaxSize:         2,
+            SubnetIds:       []string{"subnet-12345"},
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            Tags:           map[string]string{"key": "value"},
+        }
+        err := utils.ValidateClusterConfig(nodeGroup)
+        require.Error(t, err)
+        // require.Contains(t, err.Error(), "SubnetIds must be valid AWS subnet IDs")
+    })
+
+    t.Run("TestValidSecurityGroupID", func(t *testing.T) {
+        cluster := utils.ClusterConfig{
+            Name:             "my-cluster",
+            Version:           "1.18",
+            RoleArn:          "arn:aws:iam::123456789012:role/eks-cluster-role",
+            SubnetIds:        []string{"subnet-12345678912345678"},
+            SecurityGroupIds: []string{"sg-0f3a7d6b8e5c4e5c9"},
+            PublicAccessCidrs: []string{"10.0.0.0/16"},
+            Tags:            map[string]string{"key": "value"},
+        }
+        err := utils.ValidateClusterConfig(cluster)
+        require.NoError(t, err)
+        // require.Contains(t, err.Error(), "SecurityGroupIds must be valid AWS security group IDs")
+    })
+
+    t.Run("TestInvalidSecurityGroupID", func(t *testing.T) {
+        cluster := utils.ClusterConfig{
+            Name:             "my-cluster",
+            Version:           "1.18",
+            RoleArn:          "arn:aws:iam::123456789012:role/eks-cluster-role",
+            SubnetIds:        []string{"subnet-027691384e95e1c10"},
+            SecurityGroupIds: []string{"sg-12345"},
+            PublicAccessCidrs: []string{"10.0.0.0/16"},
+            Tags:            map[string]string{"key": "value"},
+        }
+        err := utils.ValidateClusterConfig(cluster)
+        require.Error(t, err)
+        // require.Contains(t, err.Error(), "SecurityGroupIds must be valid AWS security group IDs")
+    })
+            
 }

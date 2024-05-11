@@ -1,6 +1,10 @@
 package utils
 
-import "github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+import (
+	"errors"
+
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+)
 
 // Helper function to convert []string to pulumi.StringArray
 func ConvertToPulumiStringArray(items []string) pulumi.StringArray {
@@ -17,4 +21,17 @@ func ConvertToPulumiStringMap(items map[string]string) pulumi.StringMap {
 		result[key] = pulumi.String(value)
 	}
 	return result
+}
+
+func ConvertPulumiStringOutputToString(output pulumi.StringOutput) (string, error) {
+	var result string
+	output.ApplyT(func(value string) string {
+		result = value
+		return value
+	})
+
+	if result == "" {
+		return "", errors.New("failed to convert pulumi.StringOutput to string")
+	}
+	return result, nil
 }
