@@ -14,7 +14,7 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 
 	nodeGroup, err := eks.NewNodeGroup(ctx, nodeGroupConfig.Name, &eks.NodeGroupArgs{
 		ClusterName:   cluster.Name,
-		NodeGroupName: pulumi.String(nodeGroupConfig.Name),
+		NodeGroupNamePrefix: pulumi.String(nodeGroupConfig.Name),
 		NodeRoleArn:   nodeGroupRole.Arn,
 		SubnetIds:     utils.ConvertToPulumiStringArray(nodeGroupConfig.NetworkConfiguration.SubnetIds),
 		ScalingConfig: &eks.NodeGroupScalingConfigArgs{
@@ -45,12 +45,12 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 	return nodeGroup, nil
 }
 
-func CreateOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.NodeGroupConfig, cluster *eks.Cluster) error {
+func CreateOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.NodeGroupConfig, cluster *eks.Cluster, clusterName string) error {
 	for _, nodeGroupConfig := range nodeGroupConfigs {
 		log.Printf("Creating or updating node group: %s", nodeGroupConfig.Name)
 
 		// check if roleArn is empty, if so, create a new role with suffix "-eks-nodegroup-role"
-		nodeGroupRole, err := getOrCreateNodeGroupRole(ctx, nodeGroupConfig)
+		nodeGroupRole, err := getOrCreateNodeGroupRole(ctx, nodeGroupConfig, clusterName)
 		if err != nil {
 			return err
 		}

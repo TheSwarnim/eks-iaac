@@ -39,7 +39,7 @@ func main() {
 			}
 
 			// Create the nodegroups for the current cluster
-			err = components.CreateOrUpdateNodeGroups(ctx, nodeGroupConfigs, clusters[i])
+			err = components.CreateOrUpdateNodeGroups(ctx, nodeGroupConfigs, clusters[i], clusterConfigs[i].Name)
 			if err != nil {
 				return err
 			}

@@ -116,8 +116,10 @@ func createNodeGroupRole(ctx *pulumi.Context, roleName string, nodeGroupConfig u
 	return role, nil
 }
 
-func getOrCreateNodeGroupRole(ctx *pulumi.Context, nodeGroupConfig utils.NodeGroupConfig) (*iam.Role, error) {
-	nodeGroupRoleName := nodeGroupConfig.Name + "-eks-nodegroup-role"
+func getOrCreateNodeGroupRole(ctx *pulumi.Context, nodeGroupConfig utils.NodeGroupConfig, clusterName string) (*iam.Role, error) {
+	// the nodegroup role name should add the cluster name to make it unique
+	nodeGroupRoleName := clusterName + "-" + nodeGroupConfig.Name + "-eks-nodegroup-role"
+	// log.Println("NodeGroupRoleName: ", nodeGroupRoleName)
 	if nodeGroupConfig.RoleArn == "" {
 		log.Println("RoleArn is empty, creating a new role")
 		role, err := createNodeGroupRole(ctx, nodeGroupRoleName, nodeGroupConfig)

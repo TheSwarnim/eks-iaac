@@ -28,7 +28,8 @@ computeConfiguration:
 tags:
   pod: sre
 kubernetesLabels:
-  nodegroup: nodegroup-1
+  nodegroup: nodegroup-2
   pod: sre
   cluster: swarnim-eks
   version: "1.29"
+  node: spot

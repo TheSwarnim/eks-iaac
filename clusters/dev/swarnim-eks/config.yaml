@@ -3,7 +3,13 @@ version: "1.29"
 # roleArn: arn:aws:iam::123456789012:role/my-cluster-role if not provided, pulumi will create a new role
 publicAccessCidrs:
   - 0.0.0.0/0
-serviceIpv4Cidr: 172.20.0.0/16
+  
+# It is recommended to specify a block that does not overlap with resources in other networks that are peered or connected to our VPC. The block must meet the following requirements:
+
+# Within one of the following private IP address blocks: 10.0.0.0/8, 172.16.0.0/12, or 192.168.0.0/16.
+# Doesn’t overlap with any CIDR block assigned to the VPC that you selected for VPC.
+# Between /24 and /12.
+serviceIpv4Cidr: 172.20.0.0/16 # aws by default can specify custom cidr either this or 10.100.0.0/16
 securityGroupIds:
   - sg-06bfd6162258d07f7
 subnetIds:
