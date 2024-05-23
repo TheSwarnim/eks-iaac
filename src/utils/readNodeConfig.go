@@ -9,14 +9,46 @@ import (
 )
 
 type NodeGroupConfig struct {
-	Name            string `yaml:"name" validate:"required"`
-    InstanceType    string `yaml:"instanceType" validate:"required,instancetype"`
-    DesiredCapacity int    `yaml:"desiredCapacity" validate:"required,minfield=MinSize"`
-    MinSize         int    `yaml:"minSize" validate:"required,min=1"`
-	MaxSize         int    `yaml:"maxSize" validate:"required,minfield=MinSize"`
-	SubnetIds       []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
-	RoleArn         string `yaml:"roleArn" validate:"omitempty,rolearn"`
-	Tags 		  	map[string]string `yaml:"tags" validate:"required"`
+    Name                 string `yaml:"name" validate:"required"`
+    InstanceType         string `yaml:"instanceType" validate:"required,instancetype"`
+    ScalingConfiguration ScalingConfig `yaml:"scalingConfiguration" validate:"required"`
+    NetworkConfiguration NetworkConfig `yaml:"networkConfiguration" validate:"required"`
+    RoleArn              string `yaml:"roleArn" validate:"omitempty,rolearn"`
+    ComputeConfiguration ComputeConfig `yaml:"computeConfiguration" validate:"required"`
+    Tags                 map[string]string `yaml:"tags" validate:"required,dive"`
+    KubernetesLabels     map[string]string `yaml:"kubernetesLabels" validate:"required,dive"`
+    KubernetesTaints     []KubernetesTaint `yaml:"kubernetesTaints" validate:"required,dive"`
+}
+
+type ScalingConfig struct {
+    DesiredCapacity     int `yaml:"desiredCapacity" validate:"required,minfield=MinSize,maxfield=MaxSize"`
+    MinSize             int `yaml:"minSize" validate:"required,min=1"`
+    MaxSize             int `yaml:"maxSize" validate:"required,minfield=MinSize"`
+    MaximumUnavailable  MaximumUnavailable `yaml:"maximumUnavailable" validate:"required"`
+}
+
+type MaximumUnavailable struct {
+    Type  string `yaml:"type" validate:"required"`
+    Value int    `yaml:"value" validate:"required"`
+}
+
+type NetworkConfig struct {
+    SubnetIds         []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
+    Ec2KeyPair        string `yaml:"ec2KeyPair" validate:"required"`
+    SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required,dive,securitygroupid"`
+}
+
+type ComputeConfig struct {
+    AmiType        string   `yaml:"amiType" validate:"required"`
+    CapacityType   string   `yaml:"capacityType" validate:"required"`
+    InstanceTypes  []string `yaml:"instanceTypes" validate:"required"`
+    DiskSize       int      `yaml:"diskSize" validate:"required"`
+}
+
+type KubernetesTaint struct {
+    Key    string `yaml:"key" validate:"required"`
+    Value  string `yaml:"value" validate:"required"`
+    Effect string `yaml:"effect" validate:"required"`
 }
 
 func ReadNodeConfigs(nodeDirInClusterDir string) ([]NodeGroupConfig, error) {

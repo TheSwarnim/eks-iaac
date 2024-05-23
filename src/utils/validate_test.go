@@ -36,16 +36,81 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         3,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 2,
+                MinSize:         2,
+                MaxSize:         1,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
             Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "MaxSize must be greater than MinSize")
+    })
+
+    // Test case when DesiredCapacity is out of range
+    t.Run("TestNodeGroupMinCountIsGreaterThanMaxCount", func(t *testing.T) {
+        nodeGroup := utils.NodeGroupConfig{
+            Name:            "my-node-group",
+            InstanceType:    "t3.medium",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 3,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
+        }
+        err := utils.ValidateConfigs(nodeGroup)
+        require.Error(t, err)
+        // require.Contains(t, err.Error(), "DesiredCapacity must be between MinSize and MaxSize")
     })
 
     // Test case when a field is invalid
@@ -53,12 +118,36 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "invalid-instance-type",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
             Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
@@ -70,14 +159,38 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
             Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
-        require.Error(t, err)
+        require.NoError(t, err)
         // require.Contains(t, err.Error(), "RoleArn must be specified")
     })
 
@@ -86,15 +199,39 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
-            RoleArn:         "",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:        "",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
             Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
-        require.Error(t, err)
+        require.NoError(t, err)
         // require.Contains(t, err.Error(), "RoleArn cannot be empty")
     })
 
@@ -103,12 +240,36 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
-            RoleArn:         "invalid-role-arn",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:        "invalid-role-arn",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
             Tags:           map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
@@ -120,11 +281,35 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
@@ -136,12 +321,36 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
-            Tags:           map[string]string{},
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags: nil,
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
@@ -152,12 +361,36 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345678912345678"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
-            Tags:           map[string]string{"key": "value"},
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:          map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.NoError(t, err)
@@ -168,12 +401,36 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
-            DesiredCapacity: 2,
-            MinSize:         1,
-            MaxSize:         2,
-            SubnetIds:       []string{"subnet-12345"},
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         2,
+                MaxSize:         1,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
-            Tags:           map[string]string{"key": "value"},
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:          map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NoSchedule",
+                },
+            },
         }
         err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)

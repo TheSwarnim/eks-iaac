@@ -15,11 +15,11 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 		ClusterName:   cluster.Name,
 		NodeGroupName: pulumi.String(nodeGroupConfig.Name),
 		NodeRoleArn:   pulumi.String(nodeGroupConfig.RoleArn),
-		SubnetIds:     getNodeGroupSubnetIds(nodeGroupConfig, cluster),
+		SubnetIds:     utils.ConvertToPulumiStringArray(nodeGroupConfig.NetworkConfiguration.SubnetIds),
 		ScalingConfig: &eks.NodeGroupScalingConfigArgs{
-			DesiredSize: pulumi.Int(nodeGroupConfig.DesiredCapacity),
-			MinSize:     pulumi.Int(nodeGroupConfig.MinSize),
-			MaxSize:     pulumi.Int(nodeGroupConfig.MaxSize),
+			DesiredSize: pulumi.Int(nodeGroupConfig.ScalingConfiguration.DesiredCapacity),
+			MinSize:     pulumi.Int(nodeGroupConfig.ScalingConfiguration.MinSize),
+			MaxSize:     pulumi.Int(nodeGroupConfig.ScalingConfiguration.MaxSize),
 		},
 		InstanceTypes: pulumi.StringArray{pulumi.String(nodeGroupConfig.InstanceType)},
 		Tags: 		utils.ConvertToPulumiStringMap(nodeGroupConfig.Tags),
@@ -44,13 +44,4 @@ func createOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.Node
 	}
 
 	return nil
-}
-
-// if nodeGroupConfig.SubnetIds is not empty, use it as the subnetIds for the node group else use the cluster's subnetIds
-func getNodeGroupSubnetIds(nodeGroupConfig utils.NodeGroupConfig, cluster *eks.Cluster) pulumi.StringArrayInput {
-	if len(nodeGroupConfig.SubnetIds) > 0 {
-		return utils.ConvertToPulumiStringArray(nodeGroupConfig.SubnetIds)
-	}
-
-	return cluster.VpcConfig.SubnetIds()
 }
