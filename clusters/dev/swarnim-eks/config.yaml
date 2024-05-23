@@ -1,9 +1,9 @@
 name: swarnim-eks 
 version: "1.29"
-# roleArn: arn:aws:iam::123456789012:role/my-cluster-role
+# roleArn: arn:aws:iam::123456789012:role/my-cluster-role if not provided, pulumi will create a new role
 publicAccessCidrs:
   - 0.0.0.0/0
-serviceIpv4Range: 172.20.0.0/16
+serviceIpv4Cidr: 172.20.0.0/16
 securityGroupIds:
   - sg-06bfd6162258d07f7
 subnetIds:
@@ -11,20 +11,3 @@ subnetIds:
   - subnet-0bad1990bdb6919ec
 tags:
   pod: sre
-# nodeGroups:
-#   - name: nodegroup-1 
-#     instanceType: t3.medium
-#     desiredCapacity: 2
-#     minSize: 1
-#     maxSize: 3
-#     subnetIds:
-#       - subnet-0123456789abcdef0
-#     roleArn: arn:aws:iam::123456789012:role/my-node-group-role
-#     tags:
-#       Environment: Production
-#       Owner: John Doe
-#     version: 0.9.0
-#     enabled: true
-#     resolveConflicts: overwrite
-#     tags:
-#       pod: sre

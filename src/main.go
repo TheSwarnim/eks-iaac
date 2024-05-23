@@ -22,7 +22,7 @@ func main() {
 		}
 
 		// Create the clusters
-		err = components.CreateOrUpdateClusters(ctx, clusterConfigs)
+		_, err = components.CreateOrUpdateClusters(ctx, clusterConfigs)
 		if err != nil {
 			return err
 		}

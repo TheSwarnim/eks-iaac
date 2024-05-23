@@ -8,7 +8,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGroup, cluster *eks.Cluster) (*eks.NodeGroup, error) {
+func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGroupConfig, cluster *eks.Cluster) (*eks.NodeGroup, error) {
 	log.Printf("Creating or updating node group: %s", nodeGroupConfig.Name)
 
 	nodeGroup, err := eks.NewNodeGroup(ctx, nodeGroupConfig.Name, &eks.NodeGroupArgs{
@@ -35,7 +35,7 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 	return nodeGroup, nil
 }
 
-func createOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.NodeGroup, cluster *eks.Cluster) error {
+func createOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.NodeGroupConfig, cluster *eks.Cluster) error {
 	for _, nodeGroupConfig := range nodeGroupConfigs {
 		_, err := createOrUpdateNodeGroup(ctx, nodeGroupConfig, cluster)
 		if err != nil {
@@ -47,7 +47,7 @@ func createOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.Node
 }
 
 // if nodeGroupConfig.SubnetIds is not empty, use it as the subnetIds for the node group else use the cluster's subnetIds
-func getNodeGroupSubnetIds(nodeGroupConfig utils.NodeGroup, cluster *eks.Cluster) pulumi.StringArrayInput {
+func getNodeGroupSubnetIds(nodeGroupConfig utils.NodeGroupConfig, cluster *eks.Cluster) pulumi.StringArrayInput {
 	if len(nodeGroupConfig.SubnetIds) > 0 {
 		return utils.ConvertToPulumiStringArray(nodeGroupConfig.SubnetIds)
 	}

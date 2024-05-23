@@ -38,7 +38,9 @@ func createOrUpdateCluster(ctx *pulumi.Context, clusterConfig utils.ClusterConfi
 	return cluster, nil
 }
 
-func CreateOrUpdateClusters(ctx *pulumi.Context, clusterConfigs []utils.ClusterConfig) error {
+func CreateOrUpdateClusters(ctx *pulumi.Context, clusterConfigs []utils.ClusterConfig) ([]*eks.Cluster, error){
+	var clusters []*eks.Cluster
+
 	// Iterate over the clusterConfigs and create each cluster
 	for _, clusterConfig := range clusterConfigs {
 		log.Printf("Creating cluster: %s", clusterConfig.Name)
@@ -46,22 +48,17 @@ func CreateOrUpdateClusters(ctx *pulumi.Context, clusterConfigs []utils.ClusterC
 		// check if roleArn is empty, if so, create a new role with suffix "-eks-cluster-role"
 		clusterRole, err := getOrCreateClusterRole(ctx, clusterConfig)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		
 		// Use the CreateCluster function from src/components/cluster.go to create the cluster
 		cluster, err := createOrUpdateCluster(ctx, clusterConfig, clusterRole)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		return nil
-		err = createOrUpdateNodeGroups(ctx, clusterConfig.NodeGroups, cluster)
-		if err != nil {
-			// log.Printf("Failed to create node groups for cluster: %s", clusterConfig.Name)
-			return err
-		}
+		clusters = append(clusters, cluster)
 	}
 
-	return nil
+	return clusters, nil
 }

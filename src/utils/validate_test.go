@@ -15,7 +15,7 @@ func TestValidate(t *testing.T) {
             // Don't set the Name field
             Version:           "1.18",
         }
-        err := utils.ValidateClusterConfig(config)
+        err := utils.ValidateConfigs(config)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "Name is required")
     })
@@ -26,14 +26,14 @@ func TestValidate(t *testing.T) {
             Name:             "",
             Version:           "1.18",
         }
-        err := utils.ValidateClusterConfig(config)
+        err := utils.ValidateConfigs(config)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "Name cannot be empty")
     })
 
     // Test case when a field is out of range
     t.Run("TestNodeGroupMinCountIsGreaterThanMaxCount", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -43,14 +43,14 @@ func TestValidate(t *testing.T) {
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "MaxSize must be greater than MinSize")
     })
 
     // Test case when a field is invalid
     t.Run("TestNodeGroupInstanceTypeIsInvalid", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "invalid-instance-type",
             DesiredCapacity: 2,
@@ -60,14 +60,14 @@ func TestValidate(t *testing.T) {
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "InstanceType must be a valid EC2 instance type")
     })
 
     // Test case when a field is missing
     t.Run("TestNodeGroupRoleArnIsMissing", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -76,14 +76,14 @@ func TestValidate(t *testing.T) {
             SubnetIds:       []string{"subnet-12345"},
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "RoleArn must be specified")
     })
 
     // Test case when a field is empty
     t.Run("TestNodeGroupRoleArnIsEmpty", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -93,14 +93,14 @@ func TestValidate(t *testing.T) {
             RoleArn:         "",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "RoleArn cannot be empty")
     })
 
     // Test case when a field is invalid
     t.Run("TestNodeGroupRoleArnIsInvalid", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -110,14 +110,14 @@ func TestValidate(t *testing.T) {
             RoleArn:         "invalid-role-arn",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "RoleArn must be a valid IAM role ARN")
     })
 
     // Test case when a field is missing
     t.Run("TestNodeGroupTagsAreMissing", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -126,14 +126,14 @@ func TestValidate(t *testing.T) {
             SubnetIds:       []string{"subnet-12345"},
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "Tags must be specified")
     })
 
     // Test case when a field is empty
     t.Run("TestNodeGroupTagsAreEmpty", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -143,13 +143,13 @@ func TestValidate(t *testing.T) {
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
             Tags:           map[string]string{},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "Tags cannot be empty")
     })
 
     t.Run("TestValidSubnetID", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -159,13 +159,13 @@ func TestValidate(t *testing.T) {
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.NoError(t, err)
         // require.Contains(t, err.Error(), "SubnetIds must be valid AWS subnet IDs")
     })
 
     t.Run("TestInvalidSubnetID", func(t *testing.T) {
-        nodeGroup := utils.NodeGroup{
+        nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             InstanceType:    "t3.medium",
             DesiredCapacity: 2,
@@ -175,7 +175,7 @@ func TestValidate(t *testing.T) {
             RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
             Tags:           map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(nodeGroup)
+        err := utils.ValidateConfigs(nodeGroup)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "SubnetIds must be valid AWS subnet IDs")
     })
@@ -189,8 +189,9 @@ func TestValidate(t *testing.T) {
             SecurityGroupIds: []string{"sg-0f3a7d6b8e5c4e5c9"},
             PublicAccessCidrs: []string{"10.0.0.0/16"},
             Tags:            map[string]string{"key": "value"},
+            ServiceIpv4Cidr: "172.20.0.0/16",
         }
-        err := utils.ValidateClusterConfig(cluster)
+        err := utils.ValidateConfigs(cluster)
         require.NoError(t, err)
         // require.Contains(t, err.Error(), "SecurityGroupIds must be valid AWS security group IDs")
     })
@@ -205,7 +206,7 @@ func TestValidate(t *testing.T) {
             PublicAccessCidrs: []string{"10.0.0.0/16"},
             Tags:            map[string]string{"key": "value"},
         }
-        err := utils.ValidateClusterConfig(cluster)
+        err := utils.ValidateConfigs(cluster)
         require.Error(t, err)
         // require.Contains(t, err.Error(), "SecurityGroupIds must be valid AWS security group IDs")
     })

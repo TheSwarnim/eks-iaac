@@ -9,9 +9,13 @@ import (
 )
 
 // create a separate function for validation
-func ValidateClusterConfig(config interface{}) error {
+func ValidateConfigs(config interface{}) error {
 	validate := validator.New()
 	err := validate.RegisterValidation("minfield", validateMaxSize)
+	if err != nil {
+		return err
+	}
+	err = validate.RegisterValidation("maxfield", validateMinSize)
 	if err != nil {
 		return err
 	}
@@ -49,6 +53,18 @@ func validateMaxSize(fl validator.FieldLevel) bool {
     minSize := minSizeField.Int()
     maxSize := fl.Field().Int()
     return maxSize >= minSize
+}
+
+// custom validation function to validate MinSize field based on a MaxSize field: MaxSize >= MinSize
+func validateMinSize(fl validator.FieldLevel) bool {
+	maxFieldName := fl.Param()
+	maxSizeField := fl.Parent().FieldByName(maxFieldName)
+	if maxSizeField.Kind() == reflect.Invalid {
+		return false
+	}
+	maxSize := maxSizeField.Int()
+	minSize := fl.Field().Int()
+	return minSize <= maxSize
 }
 
 // custom validation functions for SubnetId field

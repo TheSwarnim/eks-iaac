@@ -16,19 +16,7 @@ type ClusterConfig struct {
     PublicAccessCidrs []string `yaml:"publicAccessCidrs" validate:"required,dive,cidrv4"`
     SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required,dive,securitygroupid"`
     SubnetIds         []string `yaml:"subnetIds" validate:"required,dive,subnetid"`
-    Tags              map[string]string `yaml:"tags" validate:"required"`
-    NodeGroups        []NodeGroup `yaml:"nodeGroups" validate:"omitempty,dive"`
-}
-
-type NodeGroup struct {
-	Name            string `yaml:"name" validate:"required"`
-    InstanceType    string `yaml:"instanceType" validate:"required,instancetype"`
-    DesiredCapacity int    `yaml:"desiredCapacity" validate:"required,minfield=MinSize"`
-    MinSize         int    `yaml:"minSize" validate:"required,min=1"`
-	MaxSize         int    `yaml:"maxSize" validate:"required,minfield=MinSize"`
-	SubnetIds       []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
-	RoleArn         string `yaml:"roleArn" validate:"omitempty,rolearn"`
-	Tags 		  	map[string]string `yaml:"tags" validate:"required"`
+    Tags              map[string]string `yaml:"tags" validate:"required,dive"`
 }
 
 func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
@@ -61,7 +49,7 @@ func ReadClusterConfigs(rootDir string) ([]ClusterConfig, error) {
 		}
 
 		// Validate the ClusterConfig
-		err = ValidateClusterConfig(&clusterConfig)
+		err = ValidateConfigs(&clusterConfig)
 		if err != nil {
 			return err
 		}
