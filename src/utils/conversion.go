@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 
+	"github.com/pulumi/pulumi-aws/sdk/v4/go/aws/eks"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -34,4 +35,18 @@ func ConvertPulumiStringOutputToString(output pulumi.StringOutput) (string, erro
 		return "", errors.New("failed to convert pulumi.StringOutput to string")
 	}
 	return result, nil
+}
+
+func ConvertToPulumiTaintArray(taints []KubernetesTaint) eks.NodeGroupTaintArray {
+    var pulumiTaints eks.NodeGroupTaintArray
+
+    for _, taint := range taints {
+        pulumiTaints = append(pulumiTaints, eks.NodeGroupTaintArgs{
+            Key:    pulumi.String(taint.Key),
+            Value:  pulumi.String(taint.Value),
+            Effect: pulumi.String(taint.Effect),
+        })
+    }
+
+    return pulumiTaints
 }

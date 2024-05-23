@@ -35,7 +35,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupMinCountIsGreaterThanMaxCount", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 2,
                 MinSize:         2,
@@ -76,7 +75,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupMinCountIsGreaterThanMaxCount", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 3,
                 MinSize:         1,
@@ -117,7 +115,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupInstanceTypeIsInvalid", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "invalid-instance-type",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -136,7 +133,7 @@ func TestValidate(t *testing.T) {
             ComputeConfiguration: utils.ComputeConfig{
                 AmiType:        "AL2_x86_64",
                 CapacityType:   "ON_DEMAND",
-                InstanceTypes:  []string{"t3.medium"},
+                InstanceTypes:  []string{"invalid-instance-type"},
                 DiskSize:       20,
             },
             Tags:           map[string]string{"key": "value"},
@@ -158,7 +155,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupRoleArnIsMissing", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -198,7 +194,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupRoleArnIsEmpty", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -239,7 +234,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupRoleArnIsInvalid", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -280,7 +274,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupTagsAreMissing", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -320,7 +313,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestNodeGroupTagsAreEmpty", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -360,7 +352,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestValidSubnetID", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         1,
@@ -400,7 +391,6 @@ func TestValidate(t *testing.T) {
     t.Run("TestInvalidSubnetID", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
-            InstanceType:    "t3.medium",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
                 MinSize:         2,

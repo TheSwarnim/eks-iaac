@@ -67,3 +67,74 @@ func getOrCreateClusterRole(ctx *pulumi.Context, clusterConfig utils.ClusterConf
 		return role, nil
 	}
 }
+
+func createNodeGroupRole(ctx *pulumi.Context, roleName string, nodeGroupConfig utils.NodeGroupConfig) (*iam.Role, error) {
+	role, err := iam.NewRole(ctx, roleName, &iam.RoleArgs{
+		Name: pulumi.String(roleName),
+		AssumeRolePolicy: pulumi.String(`{
+			"Version": "2012-10-17",
+			"Statement": [
+				{
+					"Effect": "Allow",
+					"Principal": {
+						"Service": "ec2.amazonaws.com"
+					},
+				"Action": "sts:AssumeRole"
+                }
+            ]
+        }`),
+		Tags: utils.ConvertToPulumiStringMap(nodeGroupConfig.Tags),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = iam.NewRolePolicyAttachment(ctx, fmt.Sprintf("%s-policy", roleName), &iam.RolePolicyAttachmentArgs{
+		Role:      role.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = iam.NewRolePolicyAttachment(ctx, fmt.Sprintf("%s-policy-2", roleName), &iam.RolePolicyAttachmentArgs{
+		Role:      role.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = iam.NewRolePolicyAttachment(ctx, fmt.Sprintf("%s-policy-3", roleName), &iam.RolePolicyAttachmentArgs{
+		Role:      role.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return role, nil
+}
+
+func getOrCreateNodeGroupRole(ctx *pulumi.Context, nodeGroupConfig utils.NodeGroupConfig) (*iam.Role, error) {
+	nodeGroupRoleName := nodeGroupConfig.Name + "-eks-nodegroup-role"
+	if nodeGroupConfig.RoleArn == "" {
+		log.Println("RoleArn is empty, creating a new role")
+		role, err := createNodeGroupRole(ctx, nodeGroupRoleName, nodeGroupConfig)
+		if err != nil {
+			log.Fatalf("Failed to create role for nodegroup: %s", nodeGroupConfig.Name)
+			return nil, err
+		}
+		log.Println("Role creation successful")
+		return role, nil
+	} else {
+		log.Println("RoleArn exists, using the existing role")
+		role, err := iam.GetRole(ctx, nodeGroupRoleName, pulumi.ID(nodeGroupConfig.RoleArn), nil, nil)
+		if err != nil {
+			log.Fatalf("Failed to get the existing role %s for nodegroup: %s", nodeGroupConfig.RoleArn, nodeGroupConfig.Name)
+			return nil, err
+		}
+		log.Println("Successfully got the existing role")
+		return role, nil
+	}
+}

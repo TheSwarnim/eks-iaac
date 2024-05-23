@@ -1,5 +1,4 @@
 name: nodegroup-1 
-instanceType: t3.medium
 scalingConfiguration:
   desiredCapacity: 2
   minSize: 1

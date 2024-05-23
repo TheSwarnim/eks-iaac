@@ -10,7 +10,6 @@ import (
 
 type NodeGroupConfig struct {
     Name                 string `yaml:"name" validate:"required"`
-    InstanceType         string `yaml:"instanceType" validate:"required,instancetype"`
     ScalingConfiguration ScalingConfig `yaml:"scalingConfiguration" validate:"required"`
     NetworkConfiguration NetworkConfig `yaml:"networkConfiguration" validate:"required"`
     RoleArn              string `yaml:"roleArn" validate:"omitempty,rolearn"`
@@ -33,7 +32,7 @@ type MaximumUnavailable struct {
 }
 
 type NetworkConfig struct {
-    SubnetIds         []string `yaml:"subnetIds" validate:"omitempty,dive,subnetid"`
+    SubnetIds         []string `yaml:"subnetIds" validate:"required,dive,subnetid"`
     Ec2KeyPair        string `yaml:"ec2KeyPair" validate:"required"`
     SecurityGroupIds  []string `yaml:"securityGroupIds" validate:"required,dive,securitygroupid"`
 }
@@ -41,7 +40,7 @@ type NetworkConfig struct {
 type ComputeConfig struct {
     AmiType        string   `yaml:"amiType" validate:"required"`
     CapacityType   string   `yaml:"capacityType" validate:"required"`
-    InstanceTypes  []string `yaml:"instanceTypes" validate:"required"`
+    InstanceTypes  []string `yaml:"instanceTypes" validate:"required,dive,instancetype"`
     DiskSize       int      `yaml:"diskSize" validate:"required"`
 }
 

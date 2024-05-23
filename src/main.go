@@ -22,9 +22,27 @@ func main() {
 		}
 
 		// Create the clusters
-		_, err = components.CreateOrUpdateClusters(ctx, clusterConfigs)
+		clusters, err := components.CreateOrUpdateClusters(ctx, clusterConfigs)
 		if err != nil {
 			return err
+		}
+
+		// Iterate over the clusters and read the nodegroup configurations
+		for i := 0; i < len(clusterConfigs); i++ {
+			// nodeGroupDirectory will be inside the cluster directory for each cluster
+			nodeGroupDirectory := rootDir + "/" + clusterConfigs[i].Name + "/nodegroups"
+			
+			// Use the ReadNodeConfigs function from src/utils/readconfig.go to read the nodegroup configuration files
+			nodeGroupConfigs, err := utils.ReadNodeConfigs(nodeGroupDirectory)
+			if err != nil {
+				return err
+			}
+
+			// Create the nodegroups for the current cluster
+			err = components.CreateOrUpdateNodeGroups(ctx, nodeGroupConfigs, clusters[i])
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil

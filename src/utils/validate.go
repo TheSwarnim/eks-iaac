@@ -79,6 +79,7 @@ func validateSubnetID(fl validator.FieldLevel) bool {
 func validateInstanceType(fl validator.FieldLevel) bool {
     instanceType := fl.Field().String()
     // AWS instance types are in the format "t2.micro", "m5.large", etc.
+	log.Println("Instance type: ", instanceType)
     matched, _ := regexp.MatchString(`^[a-z]+\d\.[a-z]+$`, instanceType)
     return matched
 }
@@ -95,6 +96,7 @@ func validateRoleARN(fl validator.FieldLevel) bool {
 func validateSecurityGroupID(fl validator.FieldLevel) bool {
 	securityGroupID := fl.Field().String()
 	// AWS security group IDs start with "sg-" followed by a 17-character hexadecimal string
+	log.Println("Security group ID: ", securityGroupID)
 	matched, _ := regexp.MatchString(`^sg-[a-fA-F0-9]{17}$`, securityGroupID)
 	return matched
 }
