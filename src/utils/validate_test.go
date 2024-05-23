@@ -36,7 +36,7 @@ func TestValidate(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             ScalingConfiguration: utils.ScalingConfig{
-                DesiredCapacity: 2,
+                DesiredCapacity: 1,
                 MinSize:         2,
                 MaxSize:         1,
                 MaximumUnavailable: utils.MaximumUnavailable{
@@ -62,7 +62,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -72,7 +72,7 @@ func TestValidate(t *testing.T) {
     })
 
     // Test case when DesiredCapacity is out of range
-    t.Run("TestNodeGroupMinCountIsGreaterThanMaxCount", func(t *testing.T) {
+    t.Run("TestNodeGroupDesiredCountIsGreaterThanMaxCount", func(t *testing.T) {
         nodeGroup := utils.NodeGroupConfig{
             Name:            "my-node-group",
             ScalingConfiguration: utils.ScalingConfig{
@@ -102,7 +102,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -142,7 +142,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -181,7 +181,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -221,7 +221,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -261,7 +261,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -300,7 +300,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -340,7 +340,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -379,7 +379,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -393,8 +393,8 @@ func TestValidate(t *testing.T) {
             Name:            "my-node-group",
             ScalingConfiguration: utils.ScalingConfig{
                 DesiredCapacity: 1,
-                MinSize:         2,
-                MaxSize:         1,
+                MinSize:         1,
+                MaxSize:         2,
                 MaximumUnavailable: utils.MaximumUnavailable{
                     Type:  "percentage",
                     Value: 50,
@@ -418,7 +418,7 @@ func TestValidate(t *testing.T) {
                 {
                     Key:    "key",
                     Value:  "value",
-                    Effect: "NoSchedule",
+                    Effect: "NO_SCHEDULE",
                 },
             },
         }
@@ -458,4 +458,121 @@ func TestValidate(t *testing.T) {
         // require.Contains(t, err.Error(), "SecurityGroupIds must be valid AWS security group IDs")
     })
             
+
+    t.Run("TestInvalidKubernetesTaintEffect", func(t *testing.T) {
+        nodeGroup := utils.NodeGroupConfig{
+            Name:            "my-node-group",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:          map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "INVALID_EFFECT",
+                },
+            },
+        }
+        err := utils.ValidateConfigs(nodeGroup)
+        require.Error(t, err)
+        // require.Contains(t, err.Error(), "Effect must be one of NoSchedule, PreferNoSchedule, NoExecute")
+    })
+
+    t.Run("TestValidKubernetesTaintEffect", func(t *testing.T) {
+        nodeGroup := utils.NodeGroupConfig{
+            Name:            "my-node-group",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 1,
+                MinSize:         1,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:          map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NO_EXECUTE",
+                },
+            },
+        }
+        err := utils.ValidateConfigs(nodeGroup)
+        require.NoError(t, err)
+        // require.Contains(t, err.Error(), "Effect must be one of NoSchedule, PreferNoSchedule, NoExecute")
+    })
+
+    t.Run("TestZeroMinZeroDesiredCapacity", func(t *testing.T) {
+        nodeGroup := utils.NodeGroupConfig{
+            Name:            "my-node-group",
+            ScalingConfiguration: utils.ScalingConfig{
+                DesiredCapacity: 0,
+                MinSize:         0,
+                MaxSize:         2,
+                MaximumUnavailable: utils.MaximumUnavailable{
+                    Type:  "percentage",
+                    Value: 50,
+                },
+            },
+            NetworkConfiguration: utils.NetworkConfig{
+                SubnetIds:      []string{"subnet-12345678912345678"},
+                Ec2KeyPair:     "my-key-pair",
+                SecurityGroupIds: []string{"sg-12345678912345678"},
+            },
+            RoleArn:         "arn:aws:iam::123456789012:role/eks-node-group-role",
+            ComputeConfiguration: utils.ComputeConfig{
+                AmiType:        "AL2_x86_64",
+                CapacityType:   "ON_DEMAND",
+                InstanceTypes:  []string{"t3.medium"},
+                DiskSize:       20,
+            },
+            Tags:          map[string]string{"key": "value"},
+            KubernetesLabels: map[string]string{"key": "value"},
+            KubernetesTaints: []utils.KubernetesTaint{
+                {
+                    Key:    "key",
+                    Value:  "value",
+                    Effect: "NO_EXECUTE",
+                },
+            },
+        }
+        err := utils.ValidateConfigs(nodeGroup)
+        require.NoError(t, err)
+        // require.Contains(t, err.Error(), "DesiredCapacity is between MinSize and MaxSize")
+    })
 }

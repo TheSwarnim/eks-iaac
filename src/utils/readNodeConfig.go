@@ -16,13 +16,13 @@ type NodeGroupConfig struct {
     ComputeConfiguration ComputeConfig `yaml:"computeConfiguration" validate:"required"`
     Tags                 map[string]string `yaml:"tags" validate:"required,dive"`
     KubernetesLabels     map[string]string `yaml:"kubernetesLabels" validate:"required,dive"`
-    KubernetesTaints     []KubernetesTaint `yaml:"kubernetesTaints" validate:"required,dive"`
+    KubernetesTaints     []KubernetesTaint `yaml:"kubernetesTaints" validate:"omitempty,dive"`
 }
 
 type ScalingConfig struct {
-    DesiredCapacity     int `yaml:"desiredCapacity" validate:"required,minfield=MinSize,maxfield=MaxSize"`
-    MinSize             int `yaml:"minSize" validate:"required,min=1"`
-    MaxSize             int `yaml:"maxSize" validate:"required,minfield=MinSize"`
+    DesiredCapacity     int `yaml:"desiredCapacity" validate:"minfield=MinSize,maxfield=MaxSize"`
+    MinSize             int `yaml:"minSize" validate:"maxfield=DesiredCapacity,min=0"`
+    MaxSize             int `yaml:"maxSize" validate:"minfield=DesiredCapacity,min=1"`
     MaximumUnavailable  MaximumUnavailable `yaml:"maximumUnavailable" validate:"required"`
 }
 
@@ -41,13 +41,13 @@ type ComputeConfig struct {
     AmiType        string   `yaml:"amiType" validate:"required"`
     CapacityType   string   `yaml:"capacityType" validate:"required"`
     InstanceTypes  []string `yaml:"instanceTypes" validate:"required,dive,instancetype"`
-    DiskSize       int      `yaml:"diskSize" validate:"required"`
+    DiskSize       int      `yaml:"diskSize" validate:"required,min=8"`
 }
 
 type KubernetesTaint struct {
     Key    string `yaml:"key" validate:"required"`
     Value  string `yaml:"value" validate:"required"`
-    Effect string `yaml:"effect" validate:"required"`
+    Effect string `yaml:"effect" validate:"required,tainteffect"`
 }
 
 func ReadNodeConfigs(nodeDirInClusterDir string) ([]NodeGroupConfig, error) {

@@ -31,6 +31,8 @@ func createOrUpdateNodeGroup(ctx *pulumi.Context, nodeGroupConfig utils.NodeGrou
 		RemoteAccess: &eks.NodeGroupRemoteAccessArgs{
 			Ec2SshKey: pulumi.String(nodeGroupConfig.NetworkConfiguration.Ec2KeyPair),
 		},
+		CapacityType: pulumi.String(nodeGroupConfig.ComputeConfiguration.CapacityType),
+		UpdateConfig: getNodeGroupUpdateConfigArgs(nodeGroupConfig.ScalingConfiguration),
 	}, pulumi.DependsOn([]pulumi.Resource{cluster}))
 
 	if err != nil {
@@ -61,4 +63,18 @@ func CreateOrUpdateNodeGroups(ctx *pulumi.Context, nodeGroupConfigs []utils.Node
 	}
 
 	return nil
+}
+
+func getNodeGroupUpdateConfigArgs(scalingConfig utils.ScalingConfig) *eks.NodeGroupUpdateConfigArgs {
+	// if type is number then use number and if percentage then use percentage
+
+	if scalingConfig.MaximumUnavailable.Type == "number" {
+		return &eks.NodeGroupUpdateConfigArgs{
+			MaxUnavailable: pulumi.Int(scalingConfig.MaximumUnavailable.Value),
+		}
+	} else {
+		return &eks.NodeGroupUpdateConfigArgs{
+			MaxUnavailablePercentage: pulumi.Int(scalingConfig.MaximumUnavailable.Value),
+		}
+	}
 }

@@ -1,22 +1,23 @@
 name: nodegroup-1 
 scalingConfiguration:
-  desiredCapacity: 2
-  minSize: 1
+  desiredCapacity: 0
+  minSize: 0
   maxSize: 3
   maximumUnavailable:
-    type: percentage
-    value: 50
-    # type: number
-    # value: 1
+    # type: percentage
+    # value: 50
+    type: number
+    value: 1
 networkConfiguration:
   subnetIds:
-    - subnet-0123456789abcdef0
-  ec2KeyPair: my-key-pair
+    - subnet-027691384e95e1c10
+  ec2KeyPair: swarnim-dev 
   securityGroupIds:
     - sg-06bfd6162258d07f7
-roleArn: arn:aws:iam::123456789012:role/my-node-group-role
+# roleArn: arn:aws:iam::123456789012:role/my-node-group-role
 computeConfiguration:
   amiType: AL2_x86_64
+  # releaseVersion: 1.29.3-20240514
   capacityType: ON_DEMAND
   instanceTypes:
     - t3.medium
@@ -28,16 +29,17 @@ kubernetesLabels:
   pod: sre
   cluster: swarnim-eks
   version: "1.29"
+  node: on-demand
 kubernetesTaints:
   - key: nodegroup
     value: nodegroup-1
-    effect: NoSchedule
+    effect: NO_SCHEDULE
   - key: pod
     value: sre
-    effect: NoSchedule
+    effect: NO_SCHEDULE
   - key: cluster
     value: swarnim-eks
-    effect: NoSchedule
+    effect: NO_SCHEDULE
   - key: version
     value: "1.29"
-    effect: NoSchedule
+    effect: NO_SCHEDULE
